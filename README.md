@@ -1,2 +1,2 @@
 # cbpOrganizer
-Tool to help cbioportal study owners to organize their studies for publishing to cBioPortal
+Tool to organize cBioPortal studies for publishing to cBioPortal. This will help cBioPortal study owners prepare and validate their studies. This tool helps to publish cBioPortal studies efficiently.
