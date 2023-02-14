@@ -3,6 +3,6 @@ Tool to organize cBioPortal studies for publishing to cBioPortal. This will help
 
 ### Stack
 - React
-- Sprint Boot
+- Spring Boot
 - Python
-- Keyclock
+- Keycloak
