@@ -41,7 +41,7 @@ public class FilesStorageServiceImpl implements FilesStorageService{
         }
     }
 
-    public void extractGZip(File inputFile) {
+    private void extractGZip(File inputFile) {
         try {
             TarArchiveInputStream tarInput = new TarArchiveInputStream(new GZIPInputStream(new FileInputStream(inputFile)));
 
