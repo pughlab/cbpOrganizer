@@ -4,10 +4,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FilesStorageServiceImpl implements FilesStorageService{
@@ -27,14 +27,25 @@ public class FilesStorageServiceImpl implements FilesStorageService{
     public void save(MultipartFile file) {
         if (file != null) {
             try {
-                Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
-            } catch (Exception e) {
-                if (e instanceof FileAlreadyExistsException) {
-                    throw new RuntimeException("A file of that name already exists.");
-                }
-
-                throw new RuntimeException(e.getMessage());
+                Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        }
+    }
+
+    @Override
+    public List<String> getFiles() {
+        List<String> ret = new LinkedList<>();
+        try {
+            ret = Files.walk(root)
+                    .filter(Files::isRegularFile)
+                    .map(file -> file.getFileName().toString())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException("Could not list the files!");
+        } finally {
+            return ret;
         }
     }
 }
