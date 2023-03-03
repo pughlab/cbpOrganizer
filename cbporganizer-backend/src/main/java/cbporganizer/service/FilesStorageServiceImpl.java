@@ -30,28 +30,41 @@ public class FilesStorageServiceImpl implements FilesStorageService{
     }
 
     @Override
-    public void save(MultipartFile file) {
-        Path filePath = this.root.resolve(file.getOriginalFilename());
+    public void save(MultipartFile file, String userId) {
+        Path userDir = getUserPath(userId);
         try {
+            if (!Files.exists(userDir)) {
+                Files.createDirectory(userDir);
+            }
+            Path filePath = userDir.resolve(file.getOriginalFilename());
+
             Files.copy(file.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
-            extractGZip(filePath.toFile());
+            extractGZip(filePath.toFile(), userId);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void extractGZip(File inputFile) {
+    /*
+     * Resolves the path to the user's directory by the userId.
+     */
+    private Path getUserPath(String userId) {
+        return root.resolve(userId);
+    }
+
+    private void extractGZip(File inputFile, String userId) {
+        Path userDir = getUserPath(userId);
         try {
             TarArchiveInputStream tarInput = new TarArchiveInputStream(new GZIPInputStream(new FileInputStream(inputFile)));
 
             TarArchiveEntry entry;
             while((entry = tarInput.getNextTarEntry()) != null) {
                 if (entry.isDirectory()) {
-                    new File(root.resolve(entry.getName()).toString()).mkdirs();
+                    new File(userDir.resolve(entry.getName()).toString()).mkdirs();
                 } else {
                     byte[] buffer = new byte[1024];
-                    File outFile = root.resolve(entry.getName()).toFile();
+                    File outFile = userDir.resolve(entry.getName()).toFile();
                     outFile.getParentFile().mkdirs();
                     try (FileOutputStream fos = new FileOutputStream(outFile)) {
                         int len;
@@ -67,10 +80,11 @@ public class FilesStorageServiceImpl implements FilesStorageService{
     }
 
     @Override
-    public List<String> getFiles() {
+    public List<String> getFiles(String userId) {
+        Path userDir = getUserPath(userId);
         List<String> ret = new LinkedList<>();
         try {
-            ret = Files.walk(root)
+            ret = Files.walk(userDir)
                     .filter(Files::isRegularFile)
                     .map(file -> file.getFileName().toString())
                     .collect(Collectors.toList());
