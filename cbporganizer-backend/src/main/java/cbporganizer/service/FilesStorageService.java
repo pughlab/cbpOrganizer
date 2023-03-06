@@ -8,7 +8,7 @@ public interface FilesStorageService {
 
     void init();
 
-    void save(MultipartFile file);
+    void save(MultipartFile file, String userId);
 
-    List<String> getFiles();
+    List<String> getFiles(String userId);
 }
