@@ -19,6 +19,7 @@ import java.util.zip.GZIPInputStream;
 public class FilesStorageServiceImpl implements FilesStorageService{
 
     private final Path root = Paths.get("cbpFiles");
+    private final String validationResultFileName = "validated_study.html";
 
     @Override
     public void init() {
@@ -90,6 +91,58 @@ public class FilesStorageServiceImpl implements FilesStorageService{
                     .collect(Collectors.toList());
         } catch (IOException e) {
             throw new RuntimeException("Could not list the files!");
+        } finally {
+            return ret;
+        }
+    }
+
+    @Override
+    public byte[] getValidationResult(String userId) {
+        Path userDir = getUserPath(userId);
+        ClassLoader classLoader = getClass().getClassLoader();
+        File validateScript = new File(classLoader.getResource("scripts/importer/validateData.py").getFile());
+        File outFileHtml = new File(userDir.toFile(), validationResultFileName);
+
+        String studyDir = "";
+        // get the directory under root
+        for (File f : userDir.toFile().listFiles()) {
+            if (f.isDirectory()) {
+                studyDir = f.getName();
+                break;
+            }
+        }
+        File studyDirFile = new File(userDir.toFile(), studyDir);
+
+        ProcessBuilder processBuilder = new ProcessBuilder("python", validateScript.getAbsolutePath(),
+                "-s", studyDirFile.getAbsolutePath(), "-n", "-html", outFileHtml.getAbsolutePath());
+
+        byte[] ret = null;
+        processBuilder.redirectError(new File(userDir.toFile(), "errorOut.txt"));
+        try {
+            Process p = processBuilder.start();
+            int exitCode = p.waitFor();
+            if (exitCode != 0) {
+                ret = Files.readAllBytes(outFileHtml.toPath());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        } finally {
+            return ret;
+        }
+    }
+
+    @Override
+    public byte[] getURL(String userId) {
+        Path userDir = getUserPath(userId);
+        File outFileHtml = new File(userDir.toFile(), validationResultFileName);
+
+        byte[] ret = null;
+        try {
+            ret = Files.readAllBytes(outFileHtml.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             return ret;
         }

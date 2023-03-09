@@ -11,4 +11,8 @@ public interface FilesStorageService {
     void save(MultipartFile file, String userId);
 
     List<String> getFiles(String userId);
+
+    byte[] getValidationResult(String userId);
+
+    byte[] getURL(String userId);
 }
