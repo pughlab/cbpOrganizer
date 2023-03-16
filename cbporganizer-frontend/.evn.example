@@ -1,0 +1,5 @@
+REACT_APP_API_URL = 'my-sever-url'
+REACT_APP_KEYCLOAK_CLIENT_ID = 'cbpOrganizer'
+REACT_APP_KEYCLOAK_REALM = 'cbp'
+REACT_APP_KEYCLOAK_URL = 'keycloak-url'
+REACT_APP_KEYCLOAK_SECRET = 'keycloak-secret'
