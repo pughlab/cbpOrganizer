@@ -70,11 +70,10 @@ public class FileController {
     }
 
     private String getUserIdFromSession(HttpSession session) {
-//        String userId = (String) session.getAttribute("userId");
-//        if (userId == null) {
-//            throw HttpClientErrorException.Unauthorized.create(HttpStatus.UNAUTHORIZED, "Unauthorized", HttpHeaders.EMPTY, null, null);
-//        }
-//        return userId;
-        return "user-docker";
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            throw HttpClientErrorException.Unauthorized.create(HttpStatus.UNAUTHORIZED, "Unauthorized", HttpHeaders.EMPTY, null, null);
+        }
+        return userId;
     }
 }
