@@ -5,9 +5,18 @@ import axios from "axios";
 import {isAuthenticated, logout} from "./service/AuthService";
 import {Route, Routes} from "react-router-dom";
 import Main from "./pages/Main";
+import Login from "./pages/Login";
 
 function App() {
     const [isAuthenticate, setIsAuthenticate] = useState(false);
+
+    const handleLogin = () => {
+        setIsAuthenticate(true);
+    };
+
+    const handleLogout = () => {
+        setIsAuthenticate(false);
+    };
 
     function LogOut() {
         const logout = () => {
@@ -44,10 +53,6 @@ function App() {
                 <p id="cbpsuer"></p>
             </>
         );
-    }
-
-    function Login() {
-
     }
 
     return (
