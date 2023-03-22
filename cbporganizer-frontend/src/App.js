@@ -3,6 +3,8 @@ import Keycloak from 'keycloak-js'
 import * as ReactDOM from "react-dom";
 import axios from "axios";
 import {isAuthenticated, logout} from "./service/AuthService";
+import {Route, Routes} from "react-router-dom";
+import Main from "./pages/Main";
 
 function App() {
     const [isAuthenticate, setIsAuthenticate] = useState(false);
@@ -19,8 +21,6 @@ function App() {
             </>
         );
     }
-
-    ReactDOM.render(<LogOut/>, document.getElementById("logoutBtn"));
 
     function CheckRoles() {
         let response = "";
@@ -51,8 +51,13 @@ function App() {
     }
 
     return (
-        <CheckRoles/>
-    )
+        <React.Suspense >
+            <Routes>
+                <Route path="/main" name="Home Page" element={<Main />} />
+                <Route path="/" name="Login Page" element={<Login />} />
+            </Routes>
+        </React.Suspense>
+    );
 }
 
 export default App
