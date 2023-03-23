@@ -14,5 +14,7 @@ public interface FilesStorageService {
 
     byte[] getValidationResult(String userId);
 
-    byte[] getURL(String userId);
+    byte[] getReport(String userId);
+
+    String getReportAsString(String userId);
 }

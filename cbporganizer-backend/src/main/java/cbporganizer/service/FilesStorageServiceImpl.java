@@ -3,12 +3,15 @@ package cbporganizer.service;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -100,7 +103,7 @@ public class FilesStorageServiceImpl implements FilesStorageService{
     public byte[] getValidationResult(String userId) {
         Path userDir = getUserPath(userId);
         ClassLoader classLoader = getClass().getClassLoader();
-        File validateScript = new File(classLoader.getResource("scripts/importer/validateData.py").getFile());
+        File validateScript = new File(classLoader.getResource("importer/validateData.py").getFile());
         File outFileHtml = new File(userDir.toFile(), validationResultFileName);
 
         String studyDir = "";
@@ -134,13 +137,31 @@ public class FilesStorageServiceImpl implements FilesStorageService{
     }
 
     @Override
-    public byte[] getURL(String userId) {
+    public byte[] getReport(String userId) {
         Path userDir = getUserPath(userId);
         File outFileHtml = new File(userDir.toFile(), validationResultFileName);
 
         byte[] ret = null;
         try {
             ret = Files.readAllBytes(outFileHtml.toPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            return ret;
+        }
+    }
+
+    @Override
+    public String getReportAsString(String userId) {
+        String ret = "";
+        Path userDir = getUserPath(userId);
+        File outFileHtml = new File(userDir.toFile(), validationResultFileName);
+
+        try {
+            String htmlContent = StreamUtils.copyToString(outFileHtml.toURL().openStream(), StandardCharsets.UTF_8);
+            ret = htmlContent;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

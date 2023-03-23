@@ -7,13 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/file")
 public class FileController {
 
@@ -51,11 +51,11 @@ public class FileController {
         }
     }
 
-    @GetMapping("/validation-report")
-    public ResponseEntity<byte[]> getURL(HttpSession session) {
+    @GetMapping("/validation-report-blob")
+    public ResponseEntity<byte[]> getReportAsBlob(HttpSession session) {
         String userId = getUserIdFromSession(session);
 
-        byte[] bytes = storageService.getURL(userId);
+        byte[] bytes = storageService.getReport(userId);
         if (bytes != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_HTML);
@@ -67,11 +67,25 @@ public class FileController {
         }
     }
 
-    private String getUserIdFromSession(HttpSession session) {
-        String userId = (String) session.getAttribute("userId");
-        if (userId == null) {
-            throw HttpClientErrorException.Unauthorized.create(HttpStatus.UNAUTHORIZED, "Unauthorized", HttpHeaders.EMPTY, null, null);
+    @GetMapping("/validation-report-html")
+    public ResponseEntity<String> getReportAsHtml(HttpSession session) {
+        String userId = getUserIdFromSession(session);
+
+        String htmlContent = storageService.getReportAsString(userId);
+        if (htmlContent == null) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } else {
+            return new ResponseEntity<>(htmlContent, HttpStatus.OK);
         }
-        return userId;
+
+    }
+
+    private String getUserIdFromSession(HttpSession session) {
+//        String userId = (String) session.getAttribute("userId");
+//        if (userId == null) {
+//            throw HttpClientErrorException.Unauthorized.create(HttpStatus.UNAUTHORIZED, "Unauthorized", HttpHeaders.EMPTY, null, null);
+//        }
+//        return userId;
+        return "user-local";
     }
 }
