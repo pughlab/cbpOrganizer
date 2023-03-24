@@ -83,6 +83,9 @@ public class FilesStorageServiceImpl implements FilesStorageService{
         }
     }
 
+    /*
+     * Returns a list of files in the user's directory.
+     */
     @Override
     public List<String> getFiles(String userId) {
         Path userDir = getUserPath(userId);
@@ -97,6 +100,38 @@ public class FilesStorageServiceImpl implements FilesStorageService{
         } finally {
             return ret;
         }
+    }
+
+    @Override
+    public List<String> getFolders(String userId) {
+        Path userDir = getUserPath(userId);
+        List<String> ret = new LinkedList<>();
+        try {
+            ret = Files.walk(userDir, 1) //only one level for study names
+                    .filter(path -> path.toFile().isDirectory())
+                    .map(folder -> folder.getFileName().toString())
+                    .collect(Collectors.toList());
+            // remove the user's directory
+            ret.remove(0);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not list folders!");
+        }
+        return ret;
+    }
+
+    @Override
+    public List<String> getFilesInFolder(String userId, String folderName) {
+        Path folderPath = getUserPath(userId).resolve(folderName);
+        List<String> ret = new LinkedList<>();
+        try {
+            ret = Files.list(folderPath)
+                    .filter(Files::isRegularFile)
+                    .map(file -> file.getFileName().toString())
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException("Could not list the files in the folder!");
+        }
+        return ret;
     }
 
     @Override

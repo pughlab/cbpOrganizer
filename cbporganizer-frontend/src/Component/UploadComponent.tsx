@@ -5,37 +5,37 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 const UploadComponent = () => {
 
     const { response, loading, error, operation } = useAxios();
-    const { response: fileResponse, loading: fileLoading, error: fileError, operation: fileOperation } = useAxios();
+    const { response: folderResponse, loading: folderLoading, error: folderError, operation: folderOperation } = useAxios();
 
     // status of tar.gz upload
     const [uploadMessage, setUploadMessage] = useState('');
-    // list of files extracted from the tar.gz
-    const [fileList, setFileList] = useState<any>([]);
+    // list of studies uploaded
+    const [folderList, setFolderList] = useState<any>([]);
 
     useEffect(() => {
         if (response !== null) {
             setUploadMessage("File uploaded successfully");
-            getFiles();
+            getFolders();
         }
     }, [response]);
 
     useEffect(() => {
         if (error !== null) {
-            setUploadMessage("Failed to upload file");
+            setUploadMessage("Failed to upload study file");
         }
     }, [error]);
 
     useEffect(() => {
-        if (fileResponse !== null) {
-            setFileList(fileResponse);
+        if (folderResponse !== null) {
+            setFolderList(folderResponse);
         }
-    }, [fileResponse]);
+    }, [folderResponse]);
 
     useEffect(() => {
-        if (fileError !== null) {
-            console.log('fileError: ', fileError);
+        if (folderError !== null) {
+            console.log('folderError: ', folderError);
         }
-    }, [fileError]);
+    }, [folderError]);
 
     const handleFileUpload = (event: any) => {
         const file = event.target.files[0];
@@ -52,10 +52,10 @@ const UploadComponent = () => {
         })
     };
 
-    const getFiles = () => {
-        fileOperation({
+    const getFolders = () => {
+        folderOperation({
             method: 'GET',
-            url: '',
+            url: 'folders',
             headers: {
                 'Content-type': 'application/json; charset=UTF-8',
             }
@@ -66,18 +66,19 @@ const UploadComponent = () => {
         <>
             <p>Upload a cBioPortal study tar.gz file</p>
             <input type="file" onChange={handleFileUpload} />
-            {(loading || fileLoading) && <div className="card flex justify-content-center">
+            <button onClick={getFolders}>listFiles</button>
+            {(loading || folderLoading) && <div className="card flex justify-content-center">
                 <ProgressSpinner />
             </div>}
             <br/>
             <br/>
             {uploadMessage && <p>{uploadMessage}</p>}
-            {fileList.length > 0 && (
+            {folderList.length > 0 && (
                 <div>
-                    <h3>Uploaded Files:</h3>
+                    <h3>Uploaded Studies:</h3>
                     <ul>
-                        {fileList.map((file: any) => (
-                            <li key={file}>{file}</li>
+                        {folderList.map((folderName: any) => (
+                            <li key={folderName}>{folderName}</li>
                         ))}
                     </ul>
                 </div>

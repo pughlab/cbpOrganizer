@@ -12,6 +12,10 @@ public interface FilesStorageService {
 
     List<String> getFiles(String userId);
 
+    List<String> getFolders(String userId);
+
+    List<String> getFilesInFolder(String userId, String folderName);
+
     byte[] getValidationResult(String userId);
 
     byte[] getReport(String userId);

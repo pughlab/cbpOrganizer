@@ -36,6 +36,23 @@ public class FileController {
         return new ResponseEntity<>(fileList, HttpStatus.OK);
     }
 
+    @GetMapping("/folders")
+    public ResponseEntity<List<String>> getFolders(HttpSession session) {
+        String userId = getUserIdFromSession(session);
+
+        List<String> folderList = storageService.getFolders(userId);
+        return new ResponseEntity<>(folderList, HttpStatus.OK);
+    }
+
+    @GetMapping("/files/{folderName}")
+    public ResponseEntity<List<String>> getFilesInFolder(@PathVariable String folderName, HttpSession session) {
+        String userId = getUserIdFromSession(session);
+
+        List<String> fileList = storageService.getFilesInFolder(userId, folderName);
+        return new ResponseEntity<>(fileList, HttpStatus.OK);
+    }
+
+
     /*
      * Execute the python validation script and return the report template html
      */
