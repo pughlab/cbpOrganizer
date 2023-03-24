@@ -135,24 +135,24 @@ public class FilesStorageServiceImpl implements FilesStorageService{
     }
 
     @Override
-    public byte[] getValidationResult(String userId) {
-        Path userDir = getUserPath(userId);
+    public byte[] getValidationResult(String userId, String folderName) {
+        Path userDir = getUserPath(userId).resolve(folderName);
         ClassLoader classLoader = getClass().getClassLoader();
         File validateScript = new File(classLoader.getResource("importer/validateData.py").getFile());
         File outFileHtml = new File(userDir.toFile(), validationResultFileName);
 
-        String studyDir = "";
-        // get the directory under root
-        for (File f : userDir.toFile().listFiles()) {
-            if (f.isDirectory()) {
-                studyDir = f.getName();
-                break;
-            }
-        }
-        File studyDirFile = new File(userDir.toFile(), studyDir);
+//        String studyDir = "";
+//        // get the directory under root
+//        for (File f : userDir.toFile().listFiles()) {
+//            if (f.isDirectory()) {
+//                studyDir = f.getName();
+//                break;
+//            }
+//        }
+//        File studyDirFile = new File(userDir);
 
         ProcessBuilder processBuilder = new ProcessBuilder("python", validateScript.getAbsolutePath(),
-                "-s", studyDirFile.getAbsolutePath(), "-n", "-html", outFileHtml.getAbsolutePath());
+                "-s", userDir.toFile().getAbsolutePath(), "-n", "-html", outFileHtml.getAbsolutePath());
 
         byte[] ret = null;
         processBuilder.redirectError(new File(userDir.toFile(), "errorOut.txt"));
@@ -172,8 +172,8 @@ public class FilesStorageServiceImpl implements FilesStorageService{
     }
 
     @Override
-    public byte[] getReport(String userId) {
-        Path userDir = getUserPath(userId);
+    public byte[] getReport(String userId, String folderName) {
+        Path userDir = getUserPath(userId).resolve(folderName);
         File outFileHtml = new File(userDir.toFile(), validationResultFileName);
 
         byte[] ret = null;
@@ -187,9 +187,9 @@ public class FilesStorageServiceImpl implements FilesStorageService{
     }
 
     @Override
-    public String getReportAsString(String userId) {
+    public String getReportAsString(String userId, String folderName) {
         String ret = "";
-        Path userDir = getUserPath(userId);
+        Path userDir = getUserPath(userId).resolve(folderName);
         File outFileHtml = new File(userDir.toFile(), validationResultFileName);
 
         try {

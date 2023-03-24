@@ -7,11 +7,11 @@ import SharedDataContext from "../service/SharedDataContext";
 
 const Main = () => {
 
-    const [result, setResult] = useState('');
+    // const [result, setResult] = useState('');
 
     return (
         <div className="card">
-            <SharedDataContext.Provider value={{ validationResult: result, setValidationResult: setResult }}>
+            {/*<SharedDataContext.Provider value={{ validationResult: result, setValidationResult: setResult }}>*/}
             <TabView>
                 <TabPanel header="Upload">
                     <UploadComponent/>
@@ -23,7 +23,7 @@ const Main = () => {
                     <ResultComponent />
                 </TabPanel>
             </TabView>
-            </SharedDataContext.Provider>
+            {/*</SharedDataContext.Provider>*/}
         </div>
     );
 }

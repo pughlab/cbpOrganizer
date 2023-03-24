@@ -56,11 +56,11 @@ public class FileController {
     /*
      * Execute the python validation script and return the report template html
      */
-    @GetMapping("/validate")
-    public ResponseEntity<HttpStatus> getValidationResult(HttpSession session) {
+    @GetMapping("/validate/{folderName}")
+    public ResponseEntity<HttpStatus> getValidationResult(@PathVariable String folderName, HttpSession session) {
         String userId = getUserIdFromSession(session);
 
-        byte[] bytes = storageService.getValidationResult(userId);
+        byte[] bytes = storageService.getValidationResult(userId, folderName);
         if (bytes != null) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
@@ -68,11 +68,11 @@ public class FileController {
         }
     }
 
-    @GetMapping("/validation-report-blob")
-    public ResponseEntity<byte[]> getReportAsBlob(HttpSession session) {
+    @GetMapping("/validation-report-blob/{folderName}")
+    public ResponseEntity<byte[]> getReportAsBlob(@PathVariable String folderName, HttpSession session) {
         String userId = getUserIdFromSession(session);
 
-        byte[] bytes = storageService.getReport(userId);
+        byte[] bytes = storageService.getReport(userId, folderName);
         if (bytes != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_HTML);
@@ -84,11 +84,11 @@ public class FileController {
         }
     }
 
-    @GetMapping("/validation-report-html")
-    public ResponseEntity<String> getReportAsHtml(HttpSession session) {
+    @GetMapping("/validation-report-html/{folderName}")
+    public ResponseEntity<String> getReportAsHtml(@PathVariable String folderName, HttpSession session) {
         String userId = getUserIdFromSession(session);
 
-        String htmlContent = storageService.getReportAsString(userId);
+        String htmlContent = storageService.getReportAsString(userId, folderName);
         if (htmlContent == null) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
