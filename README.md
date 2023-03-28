@@ -30,7 +30,9 @@ Tool to organize cBioPortal studies for publishing to cBioPortal. This will help
 3. Create a `.env` file in the 'frontend' directory and add the following environment variables:
 ```REACT_APP_API_URL = 'http://localhost:8080/file/'``` See  .env.example for more details
 4. In project root folder, run in terminal `docker-compose up -d`
-
+5. (WIP) The application is not connected to any identify provider, so you can access the backend wit
+h changing the getUserIdFromSession() method in the FileController.java file to return a hard coded
+ user id. This will be fixed in the future.
 ## Features
 
 - Upload cBioPortal study .tar.gz files to the server
