@@ -1,8 +1,9 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import SharedDataContext from "../service/SharedDataContext";
 import useAxios from "../service/useAxios";
 import {RadioButton} from "primereact/radiobutton";
 import {ProgressSpinner} from "primereact/progressspinner";
+import {Toast} from "primereact/toast";
 
 const ResultComponent = () => {
     // const { validationResult, setValidationResult } = useContext(SharedDataContext);
@@ -17,6 +18,8 @@ const ResultComponent = () => {
     const [selectedFolder, setSelectedFolder] = useState(null);
     // validation result
     const [validationResult, setValidationResult] = useState<string | undefined>(undefined);
+
+    const toast = useRef(null);
 
     useEffect(() => {
         getFolders();
@@ -46,6 +49,13 @@ const ResultComponent = () => {
         }
     }, [responseReport]);
 
+     useEffect(() => {
+         if (errorReport !== null) {
+             // @ts-ignore
+             toast.current.show({severity:'error', summary: 'Error', detail:errorReport, life: 3000});
+         }
+     }, [errorReport]);
+
     const handleShowResult = () => {
             operationReport({
                 method: 'GET',
@@ -58,6 +68,7 @@ const ResultComponent = () => {
 
     return (
         <>
+            <Toast ref={toast} />
             {folderList.map((folder: string) => {
                 return (
                     <div key={folder} className="flex align-items-center">
