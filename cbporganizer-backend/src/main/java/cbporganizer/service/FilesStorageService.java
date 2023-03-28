@@ -2,6 +2,7 @@ package cbporganizer.service;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 
 public interface FilesStorageService {
@@ -9,6 +10,8 @@ public interface FilesStorageService {
     void init();
 
     void save(MultipartFile file, String userId);
+
+    void deleteFiles(String userId);
 
     List<String> getFiles(String userId);
 
@@ -18,7 +21,8 @@ public interface FilesStorageService {
 
     byte[] getValidationResult(String userId, String folderName);
 
-    byte[] getReport(String userId, String folderName);
+    byte[] getReport(String userId, String folderName) throws FileNotFoundException;
 
     String getReportAsString(String userId, String folderName);
+
 }

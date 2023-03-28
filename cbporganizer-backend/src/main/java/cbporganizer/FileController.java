@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 @RestController
@@ -71,8 +72,12 @@ public class FileController {
     @GetMapping("/validation-report-blob/{folderName}")
     public ResponseEntity<byte[]> getReportAsBlob(@PathVariable String folderName, HttpSession session) {
         String userId = getUserIdFromSession(session);
-
-        byte[] bytes = storageService.getReport(userId, folderName);
+        byte[] bytes = null;
+        try {
+            bytes = storageService.getReport(userId, folderName);
+        } catch (FileNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         if (bytes != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_HTML);
@@ -94,7 +99,14 @@ public class FileController {
         } else {
             return new ResponseEntity<>(htmlContent, HttpStatus.OK);
         }
+    }
 
+    @DeleteMapping("/files")
+    public ResponseEntity<String> deleteFiles(HttpSession session) {
+        String userId = getUserIdFromSession(session);
+
+        storageService.deleteFiless(userId);
+        return ResponseEntity.status(HttpStatus.OK).body("Deleted all files");
     }
 
     private String getUserIdFromSession(HttpSession session) {

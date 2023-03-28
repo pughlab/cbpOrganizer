@@ -6,10 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -172,9 +169,13 @@ public class FilesStorageServiceImpl implements FilesStorageService{
     }
 
     @Override
-    public byte[] getReport(String userId, String folderName) {
+    public byte[] getReport(String userId, String folderName) throws FileNotFoundException {
         Path userDir = getUserPath(userId).resolve(folderName);
         File outFileHtml = new File(userDir.toFile(), validationResultFileName);
+
+        if (!outFileHtml.exists()) {
+            throw new FileNotFoundException("Validation report not found! Please validate the data first.");
+        }
 
         byte[] ret = null;
         try {
@@ -201,6 +202,21 @@ public class FilesStorageServiceImpl implements FilesStorageService{
             e.printStackTrace();
         } finally {
             return ret;
+        }
+    }
+
+    @Override
+    public void deleteFiles(String userId) {
+        Path userDir = getUserPath(userId);
+        try {
+            // Delete all files in the user's directory
+            Files.walk(userDir)
+                    .filter(Files::isRegularFile)
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+            // Return success response
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
