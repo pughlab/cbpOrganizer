@@ -1,5 +1,6 @@
 package cbporganizer;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import cbporganizer.service.FilesStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -14,7 +15,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin
 @RequestMapping("/file")
 public class FileController {
 

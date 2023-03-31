@@ -10,6 +10,14 @@ import Login from "./pages/Login";
 function App() {
     const [isAuthenticate, setIsAuthenticate] = useState(false);
 
+    const handleLogin = () => {
+        setIsAuthenticate(true);
+    };
+
+    const handleLogout = () => {
+        setIsAuthenticate(false);
+    };
+
     function LogOut() {
         const logout = () => {
             // keycloak.logout();
