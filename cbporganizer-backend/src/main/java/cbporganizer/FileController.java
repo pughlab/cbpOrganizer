@@ -8,10 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 @RestController
@@ -38,14 +38,31 @@ public class FileController {
         return new ResponseEntity<>(fileList, HttpStatus.OK);
     }
 
+    @GetMapping("/folders")
+    public ResponseEntity<List<String>> getFolders(HttpSession session) {
+        String userId = getUserIdFromSession(session);
+
+        List<String> folderList = storageService.getFolders(userId);
+        return new ResponseEntity<>(folderList, HttpStatus.OK);
+    }
+
+    @GetMapping("/files/{folderName}")
+    public ResponseEntity<List<String>> getFilesInFolder(@PathVariable String folderName, HttpSession session) {
+        String userId = getUserIdFromSession(session);
+
+        List<String> fileList = storageService.getFilesInFolder(userId, folderName);
+        return new ResponseEntity<>(fileList, HttpStatus.OK);
+    }
+
+
     /*
      * Execute the python validation script and return the report template html
      */
-    @GetMapping("/validate")
-    public ResponseEntity<HttpStatus> getValidationResult(HttpSession session) {
+    @GetMapping("/validate/{folderName}")
+    public ResponseEntity<HttpStatus> getValidationResult(@PathVariable String folderName, HttpSession session) {
         String userId = getUserIdFromSession(session);
 
-        byte[] bytes = storageService.getValidationResult(userId);
+        byte[] bytes = storageService.getValidationResult(userId, folderName);
         if (bytes != null) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
@@ -53,11 +70,15 @@ public class FileController {
         }
     }
 
-    @GetMapping("/validation-report")
-    public ResponseEntity<byte[]> getURL(HttpSession session) {
+    @GetMapping("/validation-report-blob/{folderName}")
+    public ResponseEntity<byte[]> getReportAsBlob(@PathVariable String folderName, HttpSession session) {
         String userId = getUserIdFromSession(session);
-
-        byte[] bytes = storageService.getURL(userId);
+        byte[] bytes = null;
+        try {
+            bytes = storageService.getReport(userId, folderName);
+        } catch (FileNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         if (bytes != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_HTML);
@@ -69,11 +90,32 @@ public class FileController {
         }
     }
 
-    private String getUserIdFromSession(HttpSession session) {
-        String userId = (String) session.getAttribute("userId");
-        if (userId == null) {
-            throw HttpClientErrorException.Unauthorized.create(HttpStatus.UNAUTHORIZED, "Unauthorized", HttpHeaders.EMPTY, null, null);
+    @GetMapping("/validation-report-html/{folderName}")
+    public ResponseEntity<String> getReportAsHtml(@PathVariable String folderName, HttpSession session) {
+        String userId = getUserIdFromSession(session);
+
+        String htmlContent = storageService.getReportAsString(userId, folderName);
+        if (htmlContent == null) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } else {
+            return new ResponseEntity<>(htmlContent, HttpStatus.OK);
         }
-        return userId;
+    }
+
+    @DeleteMapping("/files")
+    public ResponseEntity<String> deleteFiles(HttpSession session) {
+        String userId = getUserIdFromSession(session);
+
+        storageService.deleteFiless(userId);
+        return ResponseEntity.status(HttpStatus.OK).body("Deleted all files");
+    }
+
+    private String getUserIdFromSession(HttpSession session) {
+//        String userId = (String) session.getAttribute("userId");
+//        if (userId == null) {
+//            throw HttpClientErrorException.Unauthorized.create(HttpStatus.UNAUTHORIZED, "Unauthorized", HttpHeaders.EMPTY, null, null);
+//        }
+//        return userId;
+        return "user-local";
     }
 }
