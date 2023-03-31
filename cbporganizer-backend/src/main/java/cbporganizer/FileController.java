@@ -1,5 +1,6 @@
 package cbporganizer;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import cbporganizer.service.FilesStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/file")
 public class FileController {
 
