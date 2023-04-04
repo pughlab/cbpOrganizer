@@ -16,8 +16,8 @@ RUN npm run build
 # Install the serve package to serve the built app
 RUN npm install -g serve
 
-# Set the command to serve the built app
-CMD serve -s build
+# Set the command to serve the built app at port 3030
+CMD serve -s build -l 3030
 
 # Expose port 3030 to allow external access to the application
 EXPOSE 3030
