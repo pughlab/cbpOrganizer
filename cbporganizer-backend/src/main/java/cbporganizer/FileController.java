@@ -106,7 +106,7 @@ public class FileController {
     public ResponseEntity<String> deleteFiles(HttpSession session) {
         String userId = getUserIdFromSession(session);
 
-        storageService.deleteFiless(userId);
+        storageService.deleteFiles(userId);
         return ResponseEntity.status(HttpStatus.OK).body("Deleted all files");
     }
 
