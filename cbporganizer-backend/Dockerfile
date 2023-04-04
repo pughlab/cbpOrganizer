@@ -10,7 +10,7 @@ FROM openjdk:11-jre-slim
 WORKDIR /app
 
 # Copy the application JAR file to the container
-COPY target/*.jar ./cbporganizer.jar
+COPY --from=maven_builder /backend/target/*.jar /app/cbporganizer.jar
 
 # Expose the port that the application will be listening on
 EXPOSE 8080
