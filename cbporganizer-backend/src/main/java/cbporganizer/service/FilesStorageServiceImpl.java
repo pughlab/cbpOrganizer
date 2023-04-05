@@ -102,6 +102,9 @@ public class FilesStorageServiceImpl implements FilesStorageService{
     @Override
     public List<String> getFolders(String userId) {
         Path userDir = getUserPath(userId);
+        if (!Files.exists(userDir)) {
+            return null;
+        }
         List<String> ret = new LinkedList<>();
         try {
             ret = Files.walk(userDir, 1) //only one level for study names

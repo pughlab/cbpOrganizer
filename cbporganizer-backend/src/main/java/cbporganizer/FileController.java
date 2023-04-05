@@ -43,6 +43,9 @@ public class FileController {
         String userId = getUserIdFromSession(session);
 
         List<String> folderList = storageService.getFolders(userId);
+        if (folderList == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(folderList, HttpStatus.OK);
     }
 
