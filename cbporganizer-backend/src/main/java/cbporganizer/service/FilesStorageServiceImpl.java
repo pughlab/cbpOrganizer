@@ -137,26 +137,26 @@ public class FilesStorageServiceImpl implements FilesStorageService{
     @Override
     public byte[] getValidationResult(String userId, String folderName) {
         Path userDir = getUserPath(userId).resolve(folderName);
-        ClassLoader classLoader = getClass().getClassLoader();
-        File validateScript = new File(classLoader.getResource("importer/validateData.py").getFile());
-        File outFileHtml = new File(userDir.toFile(), validationResultFileName);
-
-//        String studyDir = "";
-//        // get the directory under root
-//        for (File f : userDir.toFile().listFiles()) {
-//            if (f.isDirectory()) {
-//                studyDir = f.getName();
-//                break;
-//            }
-//        }
-//        File studyDirFile = new File(userDir);
-
-        ProcessBuilder processBuilder = new ProcessBuilder("python", validateScript.getAbsolutePath(),
-                "-s", userDir.toFile().getAbsolutePath(), "-n", "-html", outFileHtml.getAbsolutePath());
+        String scriptName = "validateData.py";
 
         byte[] ret = null;
-        processBuilder.redirectError(new File(userDir.toFile(), "errorOut.txt"));
         try {
+            // Create a temporary directory to extract the script
+            Path tempDir = Files.createTempDirectory("python-script");
+
+            // Extract the script to the temporary directory
+            Path importerDir = tempDir.resolve("importer");
+            Path scriptFile = importerDir.resolve(scriptName);
+            copyScriptsToTempDir(importerDir);
+
+            File outFileHtml = new File(userDir.toFile(), validationResultFileName);
+
+            ProcessBuilder processBuilder = new ProcessBuilder("python", scriptFile.toString(),
+                    "-s", userDir.toFile().getAbsolutePath(), "-n", "-html", outFileHtml.getAbsolutePath());
+            processBuilder.directory(tempDir.toFile());
+
+            processBuilder.redirectError(new File(userDir.toFile(), "errorOut.txt"));
+
             Process p = processBuilder.start();
             int exitCode = p.waitFor();
             if (exitCode != 0) {
@@ -166,8 +166,46 @@ public class FilesStorageServiceImpl implements FilesStorageService{
             e.printStackTrace();
         } catch (InterruptedException ex) {
             ex.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             return ret;
+        }
+    }
+
+    private String[] listValidatorFileNames() {
+        // todo: traverse the directory and get all the file names
+        String[] fileNames = {"__init__.py",
+                "allowed_data_types.txt",
+                "cbioportal_common.py",
+                "cbioportalImporter.py",
+                "chromosome_sizes.json",
+                "cropped_validation_report_template.html.jinja",
+                "data_cna_pd_annotations.txt",
+                "importOncokbDiscreteCNA.py",
+                "importOncokbMutation.py",
+                "libImportOncokb.py",
+                "metaImport.py",
+                "updateOncokbAnnotations.py",
+                "validateData.py",
+                "validateStudies.py",
+                "validation_report_template.html.jinja"};
+        return fileNames;
+    }
+
+    private void copyScriptsToTempDir(Path tempDir) throws IOException {
+        for (String fileName : listValidatorFileNames()) {
+            copyToTempDir(tempDir, fileName);
+        }
+    }
+
+    private void copyToTempDir(Path importerDir, String fileName) throws IOException {
+        // Create the importer subdirectory if it doesn't exist
+        Files.createDirectories(importerDir);
+
+        Path scriptFile = importerDir.resolve(fileName);
+        try (InputStream is = getClass().getResourceAsStream("/importer/" + fileName)) {
+            Files.copy(is, scriptFile, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
