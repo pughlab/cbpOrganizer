@@ -33,6 +33,27 @@ Tool to organize cBioPortal studies for publishing to cBioPortal. This will help
 5. (WIP) The application is not connected to any identify provider, so you can access the backend wit
 h changing the getUserIdFromSession() method in the FileController.java file to return a hard coded
  user id. This will be fixed in the future.
+
+## Debug
+To debug docker container, add the following to the backend Dockerfile:
+
+```ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"```
+
+In the IDE, add a remote debug configuration with the following settings:
+```
+- Transport: Socket
+- Debugger mode: Attach
+- Host: localhost
+- Port: 5005
+```
+For example, in IntelliJ, select Run -> Edit Configurations -> + -> Remote JVM debug
+
+And make sure it has the follow command line arguments
+
+``` 
+-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 
+```
+
 ## Features
 
 - Upload cBioPortal study .tar.gz files to the server

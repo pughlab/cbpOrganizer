@@ -6,6 +6,11 @@ RUN mvn clean package
 
 FROM openjdk:11-jre-slim
 
+# install python for validation scripts
+RUN apt-get update && apt-get install -y python3 python3-requests python3-pip
+RUN pip3 install PyYAML importer jinja2
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+
 # Set the working directory to /app
 WORKDIR /app
 
